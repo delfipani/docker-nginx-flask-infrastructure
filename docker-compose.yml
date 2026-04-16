@@ -1,0 +1,21 @@
+services:
+  flask-app:
+    build: .
+    container_name: flask-app
+    networks:
+      - mi-red
+
+  nginx:
+    image: nginx:alpine
+    container_name: nginx
+    ports:
+      - "8080:80"
+    volumes:
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
+    networks:
+      - mi-red
+    depends_on:
+      - flask-app
+
+networks:
+  mi-red:
