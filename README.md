@@ -21,3 +21,6 @@ The project uses **Docker Compose** to orchestrate two services:
 2. Run `docker-compose up -d`.
 3. Access `localhost:8080`.
 
+## Future Roadmap
+- Implement Bash scripts to automate environment health checks and container log rotation.
+- Migrate the local architecture to a Cloud Provider (AWS EC2 / ECS) using Infrastructure as Code (Terraform).
