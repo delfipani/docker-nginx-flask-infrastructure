@@ -8,6 +8,9 @@ SCRIPT_DIR="$(dirname "$0")"
 LOG_FILE="$SCRIPT_DIR/status.log"
 TIMESTAMP=$(date "+%Y-%m-%d %H:%M:%S")
 
+# Number of failed checks; a non-zero value makes the script exit with status 1
+FAILURES=0
+
 echo "========================================="
 echo "📊 Initializing infrastructure check..."
 echo "========================================="
@@ -36,6 +39,7 @@ for container in "${CONTAINERS[@]}"; do
     else
         echo "❌ ALERT: Container [$container] is DOWN or does not exist."
         echo "[$TIMESTAMP] ALERT: Container [$container] is DOWN." >> "$LOG_FILE"
+        FAILURES=$((FAILURES + 1))
     fi
 done
 
@@ -52,8 +56,14 @@ if [ "$HTTP_STATUS" -eq 200 ]; then
 else
     echo "❌ ALERT: HTTP Service Unreachable (Status received: $HTTP_STATUS)"
     echo "[$TIMESTAMP] ALERT: HTTP Connection Failed (Status: $HTTP_STATUS)" >> "$LOG_FILE"
+    FAILURES=$((FAILURES + 1))
 fi
 
 echo "========================================="
-echo "🏁 Check completed. Logs saved to scripts/status.log"
+echo "🏁 Check completed with $FAILURES failure(s). Logs saved to scripts/status.log"
 echo "========================================="
+
+# Exit status lets other tools (CI, cron) detect a failed check
+if [ "$FAILURES" -gt 0 ]; then
+    exit 1
+fi
